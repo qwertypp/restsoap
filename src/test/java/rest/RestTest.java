@@ -1,10 +1,10 @@
 package rest;
 
+import org.json.JSONArray;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 public class RestTest extends PlaceholderApi {
-
 
     @Test
     public void getPostsTest(){
@@ -16,6 +16,9 @@ public class RestTest extends PlaceholderApi {
     @Test()
     public void getPostsDataProviderTest(){
         getPosts();
-        Assert.assertEquals(getExpectedCorrectData(), getResponseOutput());
+        System.out.println(jsonOutput);
+        JSONArray expectedResult = jsonOutput;
+        JSONArray actualResult = getExpectedCorrectData();
+        Assert.assertEquals(serializePosts(expectedResult), serializePosts(actualResult));
     }
 }

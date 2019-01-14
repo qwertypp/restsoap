@@ -1,6 +1,7 @@
 package rest;
 
 import framework.Settings;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -34,22 +35,6 @@ public class BaseApi {
     protected String xApplicationParam = "X-Application";
     protected String xAuthenticationParam = "X-Authentication";
     protected String accept = "Accept";
-
-    public int RESPONSE_OK = 200;
-    public int RESPONSE_FORBIDDEN = 403;
-    public int RESPONSE_NOT_FOUND = 404;
-    public int RESPONSE_UNAUTHORIZED = 401;
-    public int RESPONSE_BAD_REQUEST = 400;
-
-    public String STATUS_SUCCESS = "SUCCESS";
-
-    public String ERROR_NONE = "null";
-
-    private String url;
-
-    protected void setUrl(String url) {
-        this.url = url;
-    }
 
     protected HttpsURLConnection connection;
 
@@ -112,7 +97,6 @@ public class BaseApi {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         getResponse();
     }
 
@@ -122,6 +106,8 @@ public class BaseApi {
 
 
     protected void getResponse() {
+        HttpsURLConnection.setDefaultHostnameVerifier(
+                SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
         logger.info("Getting output stream");
         BufferedReader in = null;
         try {
@@ -144,6 +130,7 @@ public class BaseApi {
             while ((inputLine = in.readLine()) != null) {
                 response.append(inputLine);
             }
+            System.out.println(response);
             if (response.toString().indexOf("[") != 0) response.insert(0, "[").insert(response.length(), "]");
             try {
                 jsonOutput = new JSONArray(response.toString());
@@ -167,13 +154,10 @@ public class BaseApi {
 
     }
 
-    protected void setGetRequestProperties(String token) {
+    protected void setGetRequestProperties() {
         setRequestMethod(REQUEST_METHOD.GET);
         setRequestProperty(contentTypeParam, applicationJson);
         setRequestProperty("Accept", applicationJson);
-        setRequestProperty(xAuthenticationParam, token);
-        setRequestProperty("X-Country", "UA");
-
     }
 
     public JSONArray getResponseOutput() {

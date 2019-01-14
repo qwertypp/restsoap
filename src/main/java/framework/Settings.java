@@ -2,7 +2,12 @@ package framework;
 
 import org.json.JSONArray;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Properties;
 
 import static framework.Log.logger;
@@ -30,16 +35,16 @@ public class Settings {
         return result;
     }
 
-    public JSONArray getExpectedTestData(String dataName){
+    public JSONArray getExpectedTestData(String dataName) {
+        String fileOutput = null;
         try {
-            return new JSONArray(
-                    new FileReader(
-                            new File("src/main/java/rest/testData/"+dataName+".json").
-                                    getAbsoluteFile()).toString());
-        } catch (FileNotFoundException e) {
+            fileOutput = new String(Files.readAllBytes(Paths.get("src/main/java/rest/testData/" + dataName + ".json")), "UTF-8");
+        } catch (IOException e) {
             e.printStackTrace();
         }
-        return null;
+        JSONArray jsonArray = new JSONArray(fileOutput);
+
+        return jsonArray;
     }
 
     public String getRestServerUrl() {
