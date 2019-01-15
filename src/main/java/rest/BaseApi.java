@@ -1,7 +1,6 @@
 package rest;
 
 import framework.Settings;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -14,35 +13,30 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 
 import static framework.Log.logger;
 
 public class BaseApi {
-    Settings settings = new Settings();
+    private Settings settings = new Settings();
+    private HttpsURLConnection connection;
 
+    protected JSONObject jsonInput = new JSONObject();
+    protected JSONArray jsonInputArray = new JSONArray();
+    protected JSONArray jsonOutput = new JSONArray();
 
-    protected static JSONObject jsonInput = new JSONObject();
-    public static JSONArray jsonInputArray = new JSONArray();
-    protected static JSONArray jsonOutput = new JSONArray();
-    protected static String formInput = "";
+    private String contentTypeParam = "content-type";
+    private String applicationJson = "application/json";
+    private String contentTypeValueForm = "application/x-www-form-urlencoded";
 
+    private String xApplicationParam = "X-Application";
+    private String xAuthenticationParam = "X-Authentication";
+    private String accept = "Accept";
 
-    protected String contentTypeParam = "content-type";
-    protected String applicationJson = "application/json";
-    protected String contentTypeValueForm = "application/x-www-form-urlencoded";
-
-    protected String xApplicationParam = "X-Application";
-    protected String xAuthenticationParam = "X-Authentication";
-    protected String accept = "Accept";
-
-    protected HttpsURLConnection connection;
-
-    protected void initRest(String param) {
+    void initRest(String param) {
         init(settings.getProperty("rest.server"), param);
     }
 
-    protected void addDataToJson(String key, String value) {
+    void addDataToJson(String key, String value) {
         logger.info("Adding to json param key " + key + " value " + value);
         jsonInput.put(key, value);
     }
@@ -52,7 +46,7 @@ public class BaseApi {
         URL url = null;
         try {
             url = new URL(methodUrl + param);
-            logger.info("Requesting API "+url);
+            logger.info("Requesting API " + url);
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
@@ -65,10 +59,13 @@ public class BaseApi {
 
     enum REQUEST_METHOD {
         POST,
-        GET
+        GET,
+        PUT,
+        DELETE,
+        PATCH
     }
 
-    protected void setRequestMethod(REQUEST_METHOD requestMethod) {
+    void setRequestMethod(REQUEST_METHOD requestMethod) {
         try {
             connection.setRequestMethod(requestMethod.name());
         } catch (ProtocolException e) {
@@ -76,12 +73,12 @@ public class BaseApi {
         }
     }
 
-    protected void setRequestProperty(String key, String value) {
+    private void setRequestProperty(String key, String value) {
         logger.info("Adding to request property key " + key + " value " + value);
         connection.setRequestProperty(key, value);
     }
 
-    protected void push(boolean isArray) {
+    void push() {
         connection.setDoOutput(true);
         DataOutputStream wr = null;
         try {
@@ -90,8 +87,7 @@ public class BaseApi {
             e.printStackTrace();
         }
         try {
-            if (!isArray) wr.writeBytes(jsonInput.toString());
-            else wr.writeBytes(jsonInputArray.toString());
+            wr.writeBytes(jsonInput.toString());
             wr.flush();
             wr.close();
         } catch (IOException e) {
@@ -100,16 +96,9 @@ public class BaseApi {
         getResponse();
     }
 
-    protected void push() {
-        push(false);
-    }
-
-
-    protected void getResponse() {
-        HttpsURLConnection.setDefaultHostnameVerifier(
-                SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+    void getResponse() {
         logger.info("Getting output stream");
-        BufferedReader in = null;
+        BufferedReader in;
         try {
             in = new BufferedReader(
                     new InputStreamReader(connection.getInputStream()));
@@ -142,33 +131,26 @@ public class BaseApi {
         }
     }
 
-    protected void setPostRequestProperties(String token) {
+    void setPostRequestProperties() {
         setRequestMethod(REQUEST_METHOD.POST);
         setRequestProperty(contentTypeParam, applicationJson);
         setRequestProperty("Accept", applicationJson);
-        setRequestProperty(xAuthenticationParam, token);
-        setRequestProperty("X-Country", "UA");
-
     }
 
-    protected void setGetRequestProperties() {
-        setRequestMethod(REQUEST_METHOD.GET);
-//        setRequestProperty(contentTypeParam, applicationJson);
-//        setRequestProperty("Accept", applicationJson);
+    void setPutRequestProperties() {
+        setRequestMethod(REQUEST_METHOD.PUT);
+        setRequestProperty(contentTypeParam, applicationJson);
+        setRequestProperty("Accept", applicationJson);
     }
 
-    public JSONArray getResponseOutput() {
+    JSONArray getResponseOutput() {
         logger.info("Getting output");
         return jsonOutput;
     }
 
     public int getResultsNumber() {
         logger.info("Getting number of results");
-        try {
-            return jsonOutput.length();
-        } catch (NullPointerException n) {
-            return 0;
-        }
+        return jsonOutput == null ? 0 : jsonOutput.length();
     }
 
     public JSONObject getJsonInput() {
@@ -176,7 +158,7 @@ public class BaseApi {
         return jsonInput;
     }
 
-    public int getResponseCode() {
+    int getResponseCode() {
         try {
             return connection.getResponseCode();
         } catch (IOException e) {
@@ -185,58 +167,8 @@ public class BaseApi {
         return 0;
     }
 
-    Object getDataFromOutput(int resultId, String key, String externalObject, int externalObjectId) {
-        logger.info("Getting value from key " + key);
-        JSONObject json;
-        json = jsonOutput.getJSONObject(resultId);
-        Object value;
-        if (externalObject != null) {
-            logger.info("Seeking in externalObject " + externalObject);
-            JSONObject arr;
-            try {
-                arr = (JSONObject) json.get(externalObject);
-            } catch (ClassCastException c) {
-                JSONArray array = (JSONArray) json.get(externalObject);
-                arr = (JSONObject) array.get(externalObjectId);
-            }
-            value = arr.get(key);
-        } else {
-            value = json.get(key);
-        }
-        logger.info("Value = " + value);
-        return value;
-    }
-
-    Object getDataFromOutput(int resultId, String key, String externalObject) {
-        return getDataFromOutput(resultId, key, externalObject, 0);
-    }
-
-    protected void addDataToJson(String key, Object object) {
+    void addDataToJson(String key, Object object) {
         logger.info("Adding to json key" + key + "object " + object.toString());
         jsonInput.put(key, object);
-    }
-
-    protected void addDataToForm(String key, String value) {
-        logger.info("Adding to form param key " + key + " value " + value);
-        if (formInput.length() != 0) formInput += "&";
-        formInput += key + "=" + value;
-    }
-
-    protected void pushForm() {
-        connection.setDoOutput(true);
-        DataOutputStream wr = null;
-        try {
-            wr = new DataOutputStream(connection.getOutputStream());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        try {
-            wr.write(formInput.getBytes(StandardCharsets.UTF_8));
-            wr.flush();
-            wr.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        getResponse();
     }
 }

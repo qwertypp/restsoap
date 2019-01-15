@@ -1,8 +1,8 @@
 package rest.responseTypes;
 
 public class Posts {
-    Integer userId;
-    Integer id;
-    String title;
-    String body;
+    public Integer userId;
+    public Integer id;
+    public String title;
+    public String body;
 }

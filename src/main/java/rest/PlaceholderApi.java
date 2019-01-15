@@ -5,29 +5,59 @@ import com.google.gson.reflect.TypeToken;
 import framework.Settings;
 import org.json.JSONArray;
 import rest.responseTypes.Posts;
+import rest.responseTypes.WrongPosts;
 
 import java.lang.reflect.Type;
 import java.util.List;
 
-
-public class PlaceholderApi extends BaseApi {
+class PlaceholderApi extends BaseApi {
     Settings settings = new Settings();
 
-    public void getPosts() {
-        initRest("posts");
+    void getPosts(Integer id) {
+        if (id == null) initRest("posts");
+        else initRest("posts/" + id);
         setRequestMethod(REQUEST_METHOD.GET);
-        setGetRequestProperties();
         getResponse();
     }
 
-    public JSONArray getExpectedCorrectData() {
+    void getPosts() {
+        getPosts(null);
+    }
+
+    void postPosts() {
+        initRest("posts");
+        setPostRequestProperties();
+        push();
+    }
+
+    void putPosts(int id, int userId, String title, String body) {
+        initRest("posts/" + id);
+        setPutRequestProperties();
+        addDataToJson("id", id);
+        if (title != null) addDataToJson("title", title);
+        if (body != null) addDataToJson("body", body);
+        push();
+    }
+
+    JSONArray getExpectedCorrectData() {
         return settings.getExpectedTestData("correctData");
     }
 
-    public List<Posts> serializePosts(JSONArray array){
+    JSONArray getExpectedIncorrectData() {
+        return settings.getExpectedTestData("incorrectData");
+    }
+
+    List<Posts> serializePosts(JSONArray array) {
         Gson gson = new Gson();
         Type listType = new TypeToken<List<Posts>>() {
         }.getType();
         return (List<Posts>) gson.fromJson(array.toString(), listType);
+    }
+
+    List<WrongPosts> serializeWrongPosts(JSONArray array) {
+        Gson gson = new Gson();
+        Type listType = new TypeToken<List<WrongPosts>>() {
+        }.getType();
+        return (List<WrongPosts>) gson.fromJson(array.toString(), listType);
     }
 }
