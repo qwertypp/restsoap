@@ -16,9 +16,9 @@ public class RestTest extends PlaceholderApi {
     @Test()
     public void getPostsDataProviderTest(){
         getPosts();
-        System.out.println(jsonOutput);
         JSONArray expectedResult = jsonOutput;
         JSONArray actualResult = getExpectedCorrectData();
-        Assert.assertEquals(serializePosts(expectedResult), serializePosts(actualResult));
+
+        Assert.assertEquals(expectedResult, actualResult);
     }
 }

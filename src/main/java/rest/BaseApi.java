@@ -113,7 +113,6 @@ public class BaseApi {
         try {
             in = new BufferedReader(
                     new InputStreamReader(connection.getInputStream()));
-
         } catch (IOException e) {
             try {
                 in = new BufferedReader(
@@ -130,7 +129,6 @@ public class BaseApi {
             while ((inputLine = in.readLine()) != null) {
                 response.append(inputLine);
             }
-            System.out.println(response);
             if (response.toString().indexOf("[") != 0) response.insert(0, "[").insert(response.length(), "]");
             try {
                 jsonOutput = new JSONArray(response.toString());
@@ -138,7 +136,6 @@ public class BaseApi {
                 logger.error(response);
                 throw e;
             }
-
             in.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -156,8 +153,8 @@ public class BaseApi {
 
     protected void setGetRequestProperties() {
         setRequestMethod(REQUEST_METHOD.GET);
-        setRequestProperty(contentTypeParam, applicationJson);
-        setRequestProperty("Accept", applicationJson);
+//        setRequestProperty(contentTypeParam, applicationJson);
+//        setRequestProperty("Accept", applicationJson);
     }
 
     public JSONArray getResponseOutput() {

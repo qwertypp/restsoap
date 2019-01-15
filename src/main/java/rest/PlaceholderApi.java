@@ -17,7 +17,7 @@ public class PlaceholderApi extends BaseApi {
         initRest("posts");
         setRequestMethod(REQUEST_METHOD.GET);
         setGetRequestProperties();
-        push();
+        getResponse();
     }
 
     public JSONArray getExpectedCorrectData() {
