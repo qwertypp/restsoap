@@ -12,7 +12,6 @@ import java.util.Properties;
 
 import static framework.Log.logger;
 
-
 public class Settings {
     private Properties properties;
     private static final String PROPERTIES_FILE = "api.properties";
@@ -21,34 +20,42 @@ public class Settings {
         properties = loadPropertiesFile();
     }
 
-    public String getProperty(String name) {
+    private String getProperty(String name) {
         properties = loadPropertiesFile();
 
         String result = System.getProperty(name, null);
         if ((result) != null && result.length() > 0) {
             return result;
         }
-        result = properties.getProperty(name);
-        if ((result) != null && result.length() > 0) {
-            return result;
-        }
-        return result;
+        else return properties.getProperty(name);
     }
 
-    public JSONArray getExpectedTestData(String dataName) {
+    public JSONArray getExpectedJsonTestData(String fileName) {
         String fileOutput = null;
         try {
-            fileOutput = new String(Files.readAllBytes(Paths.get("src/main/java/rest/testData/" + dataName + ".json")), "UTF-8");
+            fileOutput = new String(Files.readAllBytes(Paths.get("src/main/java/rest/testData/" + fileName + ".json")), "UTF-8");
         } catch (IOException e) {
             e.printStackTrace();
         }
-        JSONArray jsonArray = new JSONArray(fileOutput);
 
-        return jsonArray;
+        return new JSONArray(fileOutput);
+    }
+
+    public String getExpectedXmlTestDataAsString(String fileName) {
+        try {
+            return new String(Files.readAllBytes(Paths.get("src/main/java/soap/testData/" + fileName + ".xml")), "UTF-8");
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public String getRestServerUrl() {
         return getProperty("rest.server");
+    }
+
+    public String getSoapServerUrl() {
+        return getProperty("soap.server");
     }
 
     private Properties loadPropertiesFile() {

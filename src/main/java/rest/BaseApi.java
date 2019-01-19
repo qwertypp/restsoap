@@ -20,9 +20,8 @@ public class BaseApi {
     private Settings settings = new Settings();
     private HttpsURLConnection connection;
 
-    protected JSONObject jsonInput = new JSONObject();
-    protected JSONArray jsonInputArray = new JSONArray();
-    protected JSONArray jsonOutput = new JSONArray();
+    private JSONObject jsonInput = new JSONObject();
+    private JSONArray jsonOutput = new JSONArray();
 
     private String contentTypeParam = "content-type";
     private String applicationJson = "application/json";
@@ -33,8 +32,8 @@ public class BaseApi {
     private String accept = "Accept";
 
     void initRest(String param) {
-        init(settings.getProperty("rest.server"), param);
-    }
+        init(settings.getRestServerUrl(), param);
+}
 
     void addDataToJson(String key, String value) {
         logger.info("Adding to json param key " + key + " value " + value);

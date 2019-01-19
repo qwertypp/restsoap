@@ -11,7 +11,7 @@ import java.lang.reflect.Type;
 import java.util.List;
 
 class PlaceholderApi extends BaseApi {
-    Settings settings = new Settings();
+    private Settings settings = new Settings();
 
     void getPosts(Integer id) {
         if (id == null) initRest("posts");
@@ -34,17 +34,18 @@ class PlaceholderApi extends BaseApi {
         initRest("posts/" + id);
         setPutRequestProperties();
         addDataToJson("id", id);
+        addDataToJson("userId", userId);
         if (title != null) addDataToJson("title", title);
         if (body != null) addDataToJson("body", body);
         push();
     }
 
     JSONArray getExpectedCorrectData() {
-        return settings.getExpectedTestData("correctData");
+        return settings.getExpectedJsonTestData("correctData");
     }
 
     JSONArray getExpectedIncorrectData() {
-        return settings.getExpectedTestData("incorrectData");
+        return settings.getExpectedJsonTestData("incorrectData");
     }
 
     List<Posts> serializePosts(JSONArray array) {
