@@ -1,57 +1,52 @@
 package rest;
 
-import org.json.JSONArray;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import rest.responseTypes.Posts;
 
-public class RestTest extends PlaceholderApi {
+public class RestTest  {
+
+    private Client client = new Client();
+    private DataGetter dataGetter = new DataGetter();
 
     @Test
     public void getPostsResponseCodeTest() {
-        getPosts();
-        Assert.assertEquals(getResponseCode(), 200);
+        int responseCode = client.getUserPosts().getStatus();
+        Assert.assertEquals(responseCode, 200);
     }
 
     @Test()
     public void getPostsCorrectDataFromFileTest() {
-        getPosts();
-        JSONArray expectedResult = getResponseOutput();
-        JSONArray actualResult = getExpectedCorrectData();
+        String response = client.getUserPosts().getBody();
+        String expectedResult = dataGetter.getExpectedCorrectData();
 
-        Assert.assertEquals(expectedResult.toString(), actualResult.toString());
+        Assert.assertEquals(response, expectedResult);
     }
 
     @Test()
     public void getPostsIncorrectDataFromFileTest() {
-        getPosts();
-        JSONArray expectedResult = getResponseOutput();
-        JSONArray actualResult = getExpectedIncorrectData();
+        String response = client.getUserPosts().getBody();
+        String expectedResult = dataGetter.getExpectedInCorrectData();
 
-        Assert.assertEquals(expectedResult.toString(), actualResult.toString());
+        Assert.assertEquals(response, expectedResult);
     }
 
     @Test
-    public void postSerializePostsTest() {
-        postPosts();
-        Assert.assertEquals((int) serializePosts(getResponseOutput()).get(0).id, 101);
+    public void postDeserializedPostsTest() {
+        Posts response = client.postUserPosts().getResponse();
+        Assert.assertEquals((int) response.id, 101);
     }
 
     @Test
-    public void postSerializeWrongPostsTest() {
-        postPosts();
-        Assert.assertEquals((int) serializeWrongPosts(getResponseOutput()).get(0).additionalData.get(0).id, 101);
-    }
+    public void putPostsTest() {
+        int responseCode = client.putUserPosts("1", "1", "TestTitle", "TestBody").getStatus();
+        Assert.assertEquals(responseCode, 200);
+        Posts response = client.getUserPost("1").getResponse();
+        System.out.println(response.body);
 
-    @Test
-    public void putTest() {
-        putPosts(1, 1, "TestTitle", "TestBody");
-        getPosts(1);
-        Posts postResult = serializePosts(getResponseOutput()).get(0);
-
-        Assert.assertEquals((int)postResult.id, 1);
-        Assert.assertEquals((int)postResult.userId, 1);
-        Assert.assertEquals(postResult.title, "TestTitle");
-        Assert.assertEquals(postResult.body, "TestBody");
+        Assert.assertEquals((int)response.id, 1);
+        Assert.assertEquals((int)response.userId, 1);
+        Assert.assertEquals(response.title, "TestTitle");
+        Assert.assertEquals(response.body, "TestBody");
     }
 }

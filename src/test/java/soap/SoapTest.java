@@ -2,76 +2,49 @@ package soap;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import soapClient.AWSECommerceService;
 
-public class SoapTest extends BaseApi{
+import java.net.URISyntaxException;
+import java.util.HashSet;
+import java.util.Set;
 
-    private CelsiusToFahrenheit celsius = new CelsiusToFahrenheit();
-    private FahrenheitToCelsius fahrenheit = new FahrenheitToCelsius();
+public class SoapTest {
+
+    private AWSECommerceService awseCommerceService = new AWSECommerceService();
 
     @Test
-    public void getFahrenheitPositiveTest() {
-        celsius.init("100");
-        Assert.assertEquals( celsius.serializeCelsius().Body.CelsiusToFahrenheitResponse.CelsiusToFahrenheitResult,
-                "212");
+    public void getServiceNameTest() {
+        Assert.assertEquals(awseCommerceService.getServiceName().getLocalPart(),
+                "AWSECommerceService");
     }
 
     @Test
-    public void getFahrenheitNegativeValueTest() {
-        celsius.init("-50");
-        Assert.assertEquals( celsius.serializeCelsius().Body.CelsiusToFahrenheitResponse.CelsiusToFahrenheitResult,
-                "-58");
+    public void getFiveUniquePortsTest() {
+        Set<String> ports = new HashSet<>();
+        for (int i = 0; i < 5; i++) {
+            ports.add(awseCommerceService.getPorts().next().toString());
+        }
+        Assert.assertEquals(ports.size(), 5);
     }
 
     @Test
-    public void getFahrenheitNegativeTest() {
-        celsius.init("null");
-        Assert.assertEquals( celsius.serializeCelsius().Body.CelsiusToFahrenheitResponse.CelsiusToFahrenheitResult,
-                "Error");
+    public void getWsdlDocumentationTest() {
+        AWSECommerceService awseCommerceService = new AWSECommerceService();
+        Assert.assertEquals(awseCommerceService.getWSDLDocumentLocation().toString()
+                , "http://webservices.amazon.com/AWSECommerceService/AWSECommerceService.wsdl?wsdl");
     }
 
     @Test
-    public void getCelsiusPositiveTest() {
-        fahrenheit.init("100");
-        Assert.assertEquals( fahrenheit.serializeFahrenheitResponse().Body.FahrenheitToCelsiusResponse.FahrenheitToCelsiusResult,
-                "37.8");
+    public void getDefaultPortTest() {
+        Assert.assertEquals(awseCommerceService.getWSDLDocumentLocation().getDefaultPort(),
+                80);
     }
 
     @Test
-    public void getCelsiusNegativeValueTest() {
-        fahrenheit.init("-50");
-        Assert.assertEquals( fahrenheit.serializeFahrenheitResponse().Body.FahrenheitToCelsiusResponse.FahrenheitToCelsiusResult,
-                "-46");
-    }
+    public void checkThatUriAndLocationAreTheSameTest() throws URISyntaxException {
+        Assert.assertEquals(
+                awseCommerceService.getWSDLDocumentLocation().toURI().toString(),
+                awseCommerceService.getWSDLDocumentLocation().toString());
 
-    @Test
-    public void getCelsiusNegativeTest() {
-        fahrenheit.init("");
-        Assert.assertEquals( fahrenheit.serializeFahrenheitResponse().Body.FahrenheitToCelsiusResponse.FahrenheitToCelsiusResult,
-                "Error");
-    }
-
-    @Test
-    public void bothServicesTest(){
-        fahrenheit.init("80");
-        String celsiusResult = fahrenheit.serializeFahrenheitResponse().Body.FahrenheitToCelsiusResponse.FahrenheitToCelsiusResult;
-        celsius.init(celsiusResult);
-        Assert.assertEquals(celsius.serializeCelsius().Body.CelsiusToFahrenheitResponse.CelsiusToFahrenheitResult,
-                "80");
-    }
-
-    @Test
-    public void compareWithFilePositiveTest(){
-        fahrenheit.init("80");
-
-        Assert.assertTrue(fahrenheit.serializeFahrenheitCorrectData().equals(
-                fahrenheit.serializeFahrenheitResponse()));
-    }
-
-    @Test
-    public void compareWithFileNegativeTest(){
-        fahrenheit.init("100");
-
-        Assert.assertTrue(fahrenheit.serializeFahrenheitCorrectData().equals(
-                fahrenheit.serializeFahrenheitResponse()));
     }
 }

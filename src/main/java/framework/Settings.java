@@ -1,7 +1,5 @@
 package framework;
 
-import org.json.JSONArray;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -30,7 +28,7 @@ public class Settings {
         else return properties.getProperty(name);
     }
 
-    public JSONArray getExpectedJsonTestData(String fileName) {
+    public String getExpectedJsonTestData(String fileName) {
         String fileOutput = null;
         try {
             fileOutput = new String(Files.readAllBytes(Paths.get("src/main/java/rest/testData/" + fileName + ".json")), "UTF-8");
@@ -38,7 +36,7 @@ public class Settings {
             e.printStackTrace();
         }
 
-        return new JSONArray(fileOutput);
+        return fileOutput;
     }
 
     public String getExpectedXmlTestDataAsString(String fileName) {
