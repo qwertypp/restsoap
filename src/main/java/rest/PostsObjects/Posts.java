@@ -1,4 +1,4 @@
-package rest.responseTypes;
+package rest.PostsObjects;
 
 public class Posts {
     public Integer userId;

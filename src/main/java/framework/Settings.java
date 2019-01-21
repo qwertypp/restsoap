@@ -31,7 +31,7 @@ public class Settings {
     public String getExpectedJsonTestData(String fileName) {
         String fileOutput = null;
         try {
-            fileOutput = new String(Files.readAllBytes(Paths.get("src/main/java/rest/testData/" + fileName + ".json")), "UTF-8");
+            fileOutput = new String(Files.readAllBytes(Paths.get("src/main/java/rest/PostsData/" + fileName + ".json")), "UTF-8");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -41,7 +41,7 @@ public class Settings {
 
     public String getExpectedXmlTestDataAsString(String fileName) {
         try {
-            return new String(Files.readAllBytes(Paths.get("src/main/java/soap/testData/" + fileName + ".xml")), "UTF-8");
+            return new String(Files.readAllBytes(Paths.get("src/main/java/soap/PostsData/" + fileName + ".xml")), "UTF-8");
         } catch (IOException e) {
             e.printStackTrace();
             return null;

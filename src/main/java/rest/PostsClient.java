@@ -10,13 +10,13 @@ import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClients;
 import org.json.JSONObject;
-import rest.responseTypes.Posts;
+import rest.PostsObjects.Posts;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
-class Client {
+class PostsClient {
     private Settings settings = new Settings();
     private HttpClient client = HttpClients.custom().build();
     private String url = settings.getRestServerUrl();

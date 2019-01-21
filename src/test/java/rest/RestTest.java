@@ -1,18 +1,25 @@
 package rest;
 
 import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import rest.responseTypes.Posts;
+import rest.PostsObjects.Posts;
 
 public class RestTest  {
 
-    private Client client = new Client();
-    private DataGetter dataGetter = new DataGetter();
+    PostsClient client;
+    DataGetter dataGetter;
+
+    @BeforeMethod
+    public void before(){
+        client = new PostsClient();
+        dataGetter = new DataGetter();
+    }
 
     @Test
     public void getPostsResponseCodeTest() {
-        int responseCode = client.getUserPosts().getStatus();
-        Assert.assertEquals(responseCode, 200);
+        Assert.assertEquals( client.getUserPosts().getStatus(), 200);
     }
 
     @Test()
